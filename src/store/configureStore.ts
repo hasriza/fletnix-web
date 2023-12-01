@@ -1,8 +1,16 @@
-import { configureStore, StoreEnhancer } from '@reduxjs/toolkit';
-import { createInjectorsEnhancer } from 'redux-injectors';
-import createSagaMiddleware from 'redux-saga';
+/**
+ * Create the store with dynamic reducers
+ */
 
+import {
+  StoreEnhancer,
+  configureStore,
+  getDefaultMiddleware,
+} from '@reduxjs/toolkit';
+
+import { createInjectorsEnhancer } from 'redux-injectors';
 import { createReducer } from './reducers';
+import createSagaMiddleware from 'redux-saga';
 
 export function configureAppStore() {
   const reduxSagaMonitorOptions = {};
@@ -11,6 +19,12 @@ export function configureAppStore() {
 
   // Create the store with saga middleware
   const middlewares = [sagaMiddleware];
+
+  if (process.env.NODE_ENV !== 'production') {
+    const { logger } = require('redux-logger');
+
+    logger && middlewares.push(logger);
+  }
 
   const enhancers = [
     createInjectorsEnhancer({
@@ -21,7 +35,11 @@ export function configureAppStore() {
 
   const store = configureStore({
     reducer: createReducer(),
-    middleware: defaultMiddleware => [...defaultMiddleware(), ...middlewares],
+    middleware: defaultMiddleware => [
+      ...getDefaultMiddleware({ serializableCheck: false }),
+      ...defaultMiddleware(),
+      ...middlewares,
+    ],
     devTools:
       /* istanbul ignore next line */
       process.env.NODE_ENV !== 'production' ||

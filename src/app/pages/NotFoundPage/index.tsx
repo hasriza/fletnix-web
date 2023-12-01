@@ -1,19 +1,19 @@
 import * as React from 'react';
 import styled from 'styled-components/macro';
 import { P } from './P';
-import { Link } from 'app/components/Link';
-import { NavBar } from 'app/components/NavBar';
 import { Helmet } from 'react-helmet-async';
-import { StyleConstants } from 'styles/StyleConstants';
+import { Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 export function NotFoundPage() {
+  const navigate = useNavigate();
+
   return (
     <>
       <Helmet>
         <title>404 Page Not Found</title>
         <meta name="description" content="Page not found" />
       </Helmet>
-      <NavBar />
       <Wrapper>
         <Title>
           4
@@ -23,14 +23,17 @@ export function NotFoundPage() {
           4
         </Title>
         <P>Page not found.</P>
-        <Link to={process.env.PUBLIC_URL + '/'}>Return to Home Page</Link>
+        <Button type="link" onClick={() => navigate('/listing')}>
+          Go Home
+        </Button>
       </Wrapper>
     </>
   );
 }
 
 const Wrapper = styled.div`
-  height: calc(100vh - ${StyleConstants.NAV_BAR_HEIGHT});
+  height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,7 +44,7 @@ const Wrapper = styled.div`
 const Title = styled.div`
   margin-top: -8vh;
   font-weight: bold;
-  color: ${p => p.theme.text};
+  color: black;
   font-size: 3.375rem;
 
   span {

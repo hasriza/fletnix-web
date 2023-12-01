@@ -7,31 +7,87 @@
  */
 
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import { GlobalStyle } from 'styles/global-styles';
-
-import { HomePage } from './pages/HomePage/Loadable';
 import { NotFoundPage } from './pages/NotFoundPage/Loadable';
-import { useTranslation } from 'react-i18next';
+import { routes } from './routes';
+import HeaderHelmet from './components/Decorators/HeaderHelmet';
+import PrivateRoutesLoader from './components/Decorators/PrivateRoutesLoader';
+import PublicRoutesLoader from './components/Decorators/PublicRoutesLoader';
+import { useAuthSlice } from './pages/Auth/slice';
+import { getRefreshToken, getRefreshTokenExpiration } from 'store/localStore';
+import dayjs from 'dayjs';
+import { useDispatch } from 'react-redux';
+
+interface RouteProps {
+  component: React.ComponentType<any>;
+  needsAuth?: boolean;
+  title?: string;
+  description?: string;
+  path: string;
+  hideHeader?: boolean;
+  allowedAfterLogin?: boolean;
+  disableHeader?: boolean;
+}
 
 export function App() {
-  const { i18n } = useTranslation();
+  const { actions } = useAuthSlice();
+  const dispatch = useDispatch();
+
+  const refreshToken = getRefreshToken();
+
+  if (refreshToken) {
+    const refreshTokenExp = getRefreshTokenExpiration();
+    if (refreshTokenExp) {
+      if (dayjs(refreshTokenExp).diff(dayjs(), 'm') > 5) {
+        dispatch(actions.refreshToken());
+      } else {
+        dispatch(actions.logoutStart());
+      }
+    }
+  }
+
   return (
     <BrowserRouter>
-      <Helmet
-        titleTemplate="%s - React Boilerplate"
-        defaultTitle="React Boilerplate"
-        htmlAttributes={{ lang: i18n.language }}
-      >
-        <meta name="description" content="A React Boilerplate application" />
-      </Helmet>
-
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        {routes?.map(({ component: Component, ...routeProps }: RouteProps) =>
+          routeProps?.needsAuth ? (
+            <Route
+              key={routeProps?.path + routeProps?.title}
+              path={routeProps?.path}
+              element={
+                <>
+                  {!routeProps?.disableHeader && (
+                    <HeaderHelmet {...routeProps} />
+                  )}
+                  <PrivateRoutesLoader routeProps={routeProps}>
+                    <Component {...routeProps} />
+                  </PrivateRoutesLoader>
+                </>
+              }
+            />
+          ) : (
+            <Route
+              key={routeProps?.path}
+              path={routeProps?.path}
+              element={
+                <>
+                  {!routeProps?.disableHeader && (
+                    <HeaderHelmet {...routeProps} />
+                  )}
+                  <PublicRoutesLoader {...routeProps}>
+                    <Component {...routeProps} />
+                  </PublicRoutesLoader>
+                </>
+              }
+            />
+          ),
+        )}
+
+        <Route key="notFoundPage" path="*" element={<NotFoundPage />} />
       </Routes>
+
       <GlobalStyle />
     </BrowserRouter>
   );
