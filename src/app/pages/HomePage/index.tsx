@@ -11,10 +11,13 @@ export function HomePage() {
           flex: 1,
           flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'flex-start',
           margin: '2rem',
         }}
+        className="homeContent"
       >
+        <span style={{ alignSelf: 'center' }}>
+          <img src="logo192.png" alt="FletNix Logo" />
+        </span>
         <span
           style={{ fontSize: '5rem', fontWeight: 'bold', color: '#579ce0' }}
         >

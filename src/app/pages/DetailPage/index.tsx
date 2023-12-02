@@ -9,16 +9,23 @@ import HeaderPrivate from 'app/components/Decorators/HeaderPrivate';
 import * as React from 'react';
 import { useDetailPageSlice } from './slice';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { selectDetailPage } from './slice/selectors';
 
 const { Content } = Layout;
 
 export function DetailPage() {
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
   const { actions } = useDetailPageSlice();
 
-  const { showDetails }: { showDetails: any } = useSelector(selectDetailPage);
+  const {
+    showDetails,
+    loading,
+    error,
+  }: { showDetails: any; loading: boolean; error: any } =
+    useSelector(selectDetailPage);
 
   const { showId } = useParams();
 
@@ -26,6 +33,11 @@ export function DetailPage() {
     if (showId) dispatch(actions.fetchDetailsStart({ showId }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showId]);
+
+  React.useEffect(() => {
+    !loading && error && navigate('/not-found');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   return (
     <>

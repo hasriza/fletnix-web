@@ -3,7 +3,17 @@
  * Listing
  *
  */
-import { Card, Col, Divider, Input, Layout, Radio, Row } from 'antd';
+import {
+  Card,
+  Col,
+  Divider,
+  Empty,
+  Input,
+  Layout,
+  Radio,
+  Row,
+  Skeleton,
+} from 'antd';
 import HeaderPrivate from 'app/components/Decorators/HeaderPrivate';
 import ContentSubTitle from 'app/components/common/ContentSubTitle';
 import * as React from 'react';
@@ -26,9 +36,17 @@ export function Listing(props: Props) {
   const dispatch = useDispatch();
   const { actions } = useListingSlice();
 
+  const tempLoadData = React.useMemo(
+    () =>
+      Array(15)
+        .fill(1)
+        .map((_, ind) => ({ id: ind })),
+    [],
+  );
+
   const {
     loading: fetchLoading,
-    showList,
+    showList = tempLoadData,
     totalShows,
     currPage,
   }: {
@@ -137,25 +155,52 @@ export function Listing(props: Props) {
           loader={<InnerLoader />}
           ref={scrollRef}
         >
-          <Row gutter={[12, 24]} style={{ margin: '8px' }}>
-            {showList?.map((item: any) => (
-              <Col xs={24} lg={8} key={item?.id}>
-                <Card
-                  hoverable
-                  title={item?.title}
-                  bodyStyle={{ padding: '4px' }}
-                  onClick={() => navigate(`/detail/${item?.id}`)}
-                >
-                  <ContentSubTitle
-                    release={item?.release_year}
-                    duration={item?.duration}
-                    type={item?.type}
-                    hideType={showFilterType !== 'all'}
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          {
+            // fetchLoading ? Array(15).fill(1).map((el:number,ind:number) => {
+            //   <></>
+            // } )  :
+            !showList?.length && !fetchLoading ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: ContainerHeight + 'px',
+                }}
+              >
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="Sorry, no content found!"
+                />
+              </div>
+            ) : (
+              <Row gutter={[12, 24]} style={{ margin: '8px' }}>
+                {showList.map((item: any) => (
+                  <Col xs={24} lg={8} key={item?.id}>
+                    <Card
+                      hoverable
+                      title={item?.title}
+                      bodyStyle={{ padding: '4px' }}
+                      onClick={() => navigate(`/detail/${item?.id}`)}
+                    >
+                      <Skeleton
+                        loading={fetchLoading}
+                        active
+                        paragraph={{ rows: 1 }}
+                      >
+                        <ContentSubTitle
+                          release={item?.release_year}
+                          duration={item?.duration}
+                          type={item?.type}
+                          hideType={showFilterType !== 'all'}
+                        />
+                      </Skeleton>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            )
+          }
         </InfiniteScroll>
       </Content>
     </>

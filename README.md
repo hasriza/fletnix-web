@@ -1,3 +1,5 @@
+Developed front-end using React in adherence to [Tasks list](https://drive.google.com/file/d/11auWl_KUrOhJlDL-xudumdA05rWvh2ZW/view?usp=drive_link)
+
 # Instructions for setting up
 
 ## Node version
