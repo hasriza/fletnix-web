@@ -170,7 +170,12 @@ export function Listing(props: Props) {
               >
                 <Empty
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description="Sorry, no content found!"
+                  description={
+                    <span style={{ color: '#fff' }}>
+                      Sorry, no content found!
+                    </span>
+                  }
+                  style={{ color: '#fff' }}
                 />
               </div>
             ) : (
