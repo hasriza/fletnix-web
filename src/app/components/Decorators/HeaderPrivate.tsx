@@ -32,7 +32,7 @@ export default function HeaderPrivate(props: Props) {
       </div>
       {!props.hideUserIcon && (
         <span
-          style={{ color: '#fff', fontSize: '1.2rem' }}
+          style={{ color: '#fff', fontSize: '1.2rem', cursor: 'pointer' }}
           onClick={() => navigate('/my-profile')}
         >
           <FaRegCircleUser />

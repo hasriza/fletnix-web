@@ -46,6 +46,6 @@ const Svg = styled.svg<SvgProps>`
 
 const Circle = styled.circle`
   animation: ${dash} ${speed}s ease-in-out infinite;
-  stroke: ${p => p.theme.primary};
+  stroke: #fff;
   stroke-linecap: round;
 `;
