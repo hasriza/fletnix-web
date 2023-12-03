@@ -8,7 +8,8 @@ import dayjs from 'dayjs';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthSlice } from './slice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectAuth } from './slice/selectors';
 
 interface Props {}
 
@@ -18,6 +19,7 @@ export function Auth(props: Props) {
 
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const { loading } = useSelector(selectAuth);
 
   const [activeTab, setActiveTab] = React.useState<string>('register');
 
@@ -165,11 +167,7 @@ export function Auth(props: Props) {
           )}
 
           <Form.Item style={{ textAlign: 'center', padding: 0, margin: 0 }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              // loading={loading}
-            >
+            <Button type="primary" htmlType="submit" loading={loading}>
               {activeTab === 'register' ? 'Register' : 'Login'}
             </Button>
           </Form.Item>

@@ -8,6 +8,7 @@ interface Props extends SvgProps {}
 export const Loader = (props: Props) => (
   <LoadingWrapper>
     <InnerLoader />
+    Free back-end server takes time...
   </LoadingWrapper>
 );
 
