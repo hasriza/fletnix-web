@@ -144,7 +144,13 @@ export function Listing(props: Props) {
         />
       </div>
 
-      <Content style={{ display: 'flex' }}>
+      <Content
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <InfiniteScroll
           dataLength={showList?.length}
           next={fetchList}
