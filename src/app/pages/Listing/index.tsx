@@ -147,8 +147,6 @@ export function Listing(props: Props) {
       <Content
         style={{
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
         }}
       >
         <InfiniteScroll
@@ -157,7 +155,10 @@ export function Listing(props: Props) {
           hasMore={totalShows !== showList?.length}
           endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
           height={ContainerHeight}
-          style={{ width: '100vw' }}
+          style={{
+            width: '100vw',
+            textAlign: 'center',
+          }}
           loader={<InnerLoader />}
           ref={scrollRef}
         >
