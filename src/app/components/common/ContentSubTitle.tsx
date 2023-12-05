@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Props {
-  release?: number | null;
+  date_added?: number | null;
   type?: string | null;
   duration?: string | null;
   hideType?: boolean;
@@ -16,7 +16,7 @@ export default function ContentSubTitle(props: Props) {
         margin: '0 1rem',
       }}
     >
-      <span>{props.release || '-'}</span>
+      <span>{props.date_added || '-'}</span>
       {!props.hideType && (
         <span style={{ fontWeight: 'bold' }}>{props.type || '-'}</span>
       )}

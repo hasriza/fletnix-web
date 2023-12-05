@@ -4,6 +4,7 @@
  *
  */
 import {
+  Button,
   Card,
   Col,
   Divider,
@@ -23,6 +24,11 @@ import { selectListing } from './slice/selectors';
 import { useListingSlice } from './slice';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { InnerLoader } from 'app/components/Loader/InnerLoader';
+import {
+  MdArrowDownward,
+  MdArrowUpward,
+  MdCalendarMonth,
+} from 'react-icons/md';
 
 interface Props {}
 
@@ -57,6 +63,9 @@ export function Listing(props: Props) {
   } = useSelector(selectListing);
 
   const [showFilterType, setShowFilterType] = React.useState<string>('all');
+  const [dateSorter, setDateSorter] = React.useState<number | undefined>(
+    undefined,
+  );
   const [searchValue, setSearchValue] = React.useState<string>('');
   const [shouldDebounce, setShouldDebounce] = React.useState<boolean>(false);
 
@@ -64,10 +73,12 @@ export function Listing(props: Props) {
     searchVal = searchValue,
     type = showFilterType === 'all' ? undefined : showFilterType,
     page = currPage || 1,
+    dateSort = undefined,
   }: {
     searchVal?: string | any;
     type?: string | any;
     page?: number;
+    dateSort?: number | any;
   } = {}) => {
     dispatch(
       actions.fetchListStart({
@@ -75,6 +86,7 @@ export function Listing(props: Props) {
         type,
         page,
         sortBy: '_id',
+        dateSort,
         limit: 30,
       }),
     );
@@ -86,6 +98,23 @@ export function Listing(props: Props) {
     fetchList({ page: 1 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showFilterType]);
+
+  const getDateSorterNextState = () => {
+    console.log(dateSorter);
+    switch (dateSorter) {
+      case undefined:
+        setDateSorter(1);
+        return 1;
+
+      case 1:
+        setDateSorter(-1);
+        return -1;
+
+      case -1:
+        setDateSorter(undefined);
+        return undefined;
+    }
+  };
 
   const handleSearch = (searchVal: string) => {
     fetchList({ searchVal, page: 1 });
@@ -120,15 +149,34 @@ export function Listing(props: Props) {
           alignItems: 'center',
         }}
       >
-        <Radio.Group
-          value={showFilterType}
-          onChange={e => setShowFilterType(e.target.value)}
-          style={{ marginBottom: '1rem' }}
-        >
-          <Radio.Button value="all">All</Radio.Button>
-          <Radio.Button value="Movie">Movies</Radio.Button>
-          <Radio.Button value="TV Show">TV Shows</Radio.Button>
-        </Radio.Group>
+        <div>
+          <Radio.Group
+            value={showFilterType}
+            onChange={e => setShowFilterType(e.target.value)}
+            style={{ marginBottom: '1rem', marginRight: '4px' }}
+          >
+            <Radio.Button value="all">All</Radio.Button>
+            <Radio.Button value="Movie">Movies</Radio.Button>
+            <Radio.Button value="TV Show">TV Shows</Radio.Button>
+          </Radio.Group>
+          <Button
+            type="primary"
+            icon={
+              <>
+                <MdCalendarMonth />
+                {!dateSorter ? null : dateSorter === 1 ? (
+                  <MdArrowUpward />
+                ) : (
+                  <MdArrowDownward />
+                )}
+              </>
+            }
+            aria-label="Date Sorter"
+            onClick={() =>
+              fetchList({ dateSort: getDateSorterNextState(), page: 1 })
+            }
+          />
+        </div>
         <Input.Search
           value={searchValue}
           onChange={handleSearchChange}
@@ -162,57 +210,52 @@ export function Listing(props: Props) {
           loader={<InnerLoader />}
           ref={scrollRef}
         >
-          {
-            // fetchLoading ? Array(15).fill(1).map((el:number,ind:number) => {
-            //   <></>
-            // } )  :
-            !showList?.length && !fetchLoading ? (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: ContainerHeight + 'px',
-                }}
-              >
-                <Empty
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description={
-                    <span style={{ color: '#fff' }}>
-                      Sorry, no content found!
-                    </span>
-                  }
-                  style={{ color: '#fff' }}
-                />
-              </div>
-            ) : (
-              <Row gutter={[12, 24]} style={{ margin: '8px' }}>
-                {showList.map((item: any) => (
-                  <Col xs={24} lg={8} key={item?.id}>
-                    <Card
-                      hoverable
-                      title={item?.title}
-                      bodyStyle={{ padding: '4px' }}
-                      onClick={() => navigate(`/detail/${item?.id}`)}
+          {!showList?.length && !fetchLoading ? (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: ContainerHeight + 'px',
+              }}
+            >
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <span style={{ color: '#fff' }}>
+                    Sorry, no content found!
+                  </span>
+                }
+                style={{ color: '#fff' }}
+              />
+            </div>
+          ) : (
+            <Row gutter={[12, 24]} style={{ margin: '8px' }}>
+              {showList.map((item: any) => (
+                <Col xs={24} lg={8} key={item?.id || item?.title || 0}>
+                  <Card
+                    hoverable
+                    title={item?.title}
+                    bodyStyle={{ padding: '4px' }}
+                    onClick={() => navigate(`/detail/${item?.id}`)}
+                  >
+                    <Skeleton
+                      loading={fetchLoading}
+                      active
+                      paragraph={{ rows: 1 }}
                     >
-                      <Skeleton
-                        loading={fetchLoading}
-                        active
-                        paragraph={{ rows: 1 }}
-                      >
-                        <ContentSubTitle
-                          release={item?.release_year}
-                          duration={item?.duration}
-                          type={item?.type}
-                          hideType={showFilterType !== 'all'}
-                        />
-                      </Skeleton>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            )
-          }
+                      <ContentSubTitle
+                        date_added={item?.date_added}
+                        duration={item?.duration}
+                        type={item?.type}
+                        hideType={showFilterType !== 'all'}
+                      />
+                    </Skeleton>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
         </InfiniteScroll>
       </Content>
     </>
