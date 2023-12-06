@@ -80,6 +80,7 @@ export function Listing(props: Props) {
     page?: number;
     dateSort?: number | any;
   } = {}) => {
+    setDateSorter(dateSort);
     dispatch(
       actions.fetchListStart({
         searchVal: searchVal || undefined,
@@ -103,15 +104,12 @@ export function Listing(props: Props) {
     console.log(dateSorter);
     switch (dateSorter) {
       case undefined:
-        setDateSorter(1);
         return 1;
 
       case 1:
-        setDateSorter(-1);
         return -1;
 
       case -1:
-        setDateSorter(undefined);
         return undefined;
     }
   };
@@ -200,7 +198,7 @@ export function Listing(props: Props) {
         <InfiniteScroll
           dataLength={showList?.length}
           next={fetchList}
-          hasMore={totalShows !== showList?.length}
+          hasMore={totalShows > showList?.length}
           endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
           height={ContainerHeight}
           style={{

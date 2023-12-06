@@ -25,7 +25,7 @@ const slice = createSlice({
         action.payload?.page === 2
           ? action.payload?.showsList
           : [...state.showList, ...action.payload?.showsList];
-      state.totalShows = action.payload?.totalPages;
+      state.totalShows = action.payload?.totalResults;
       state.currPage = action.payload?.page;
       state.error = null;
       state.loading = false;
